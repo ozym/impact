@@ -29,5 +29,5 @@ func Intensity(vel float64) int32 {
 	if raw >= 12.0 {
 		return 12
 	}
-	return (int32)(math.Floor(raw))
+	return (int32)(math.Ceil(raw))
 }
