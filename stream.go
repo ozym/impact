@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"math"
 	"regexp"
 	"time"
@@ -41,21 +40,19 @@ type Stream struct {
 }
 
 // pull in public stream information from a json config file
-func LoadStreams(config string) map[string]*Stream {
+func LoadStreams(config string) (map[string]*Stream, error) {
 	f, err := ioutil.ReadFile(config)
 	if err != nil {
-		log.Printf("Could not load config file: \"%s\"\n", config)
-		log.Fatal(err)
+		return nil, err
 	}
 
 	var s map[string]*Stream
 	err = json.Unmarshal(f, &s)
 	if err != nil {
-		log.Printf("Could not parse config file: \"%s\"\n", config)
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return s
+	return s, nil
 }
 
 // initialize a stream, setting type of input and filters
@@ -146,8 +143,6 @@ func (s *Stream) ProcessSamples(source string, srcname string, starttime time.Ti
 
 	// has there been a break?
 	if math.Abs(starttime.Sub(s.last).Seconds()-1.0/s.Rate) > (0.5 / s.Rate) {
-		log.Printf("[%s] reset stream: %s\n", srcname, starttime)
-
 		// reset filters
 		if s.h != nil {
 			s.h.Reset()
